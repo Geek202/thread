@@ -17,12 +17,16 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 
 tasks.register<Copy>("copyDocumentationIndex") {
-    tasks.dokkaHtmlMultiModule.get().finalizedBy(this)
+    dependsOn(tasks.dokkaHtmlMultiModule.get())
     from(project.file("doc_index.html"))
     rename {
         "index.html"
     }
     into(buildDir.resolve("docs"))
+}
+
+tasks.register("docs") {
+    dependsOn(tasks["copyDocumentationIndex"])
 }
 
 allprojects {

@@ -38,7 +38,7 @@ pipeline {
 
 	stage('Documentation') {
 	  steps {
-	  	sh './gradlew --stacktrace dokkaHtml'
+	  	sh './gradlew --stacktrace docs'
 	  	publishHTML(
 	  	  reportName: "Docs",
 	  	  reportDir: "build/docs",
