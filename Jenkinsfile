@@ -1,9 +1,25 @@
+@Library("Forge-Libs")_
+
 pipeline {
   agent any
+  environment {
+    WEBHOOK_URL = credentials('discord-webhook')
+    WEBHOOK_TITLE = "Thread #${BUILD_NUMBER}"
+    JENKINS_HEAD = 'https://wiki.jenkins-ci.org/download/attachments/2916393/headshot.png'
+    MAVEN_USER = 'buildslave'
+    MAVEN_PASS = credentials('tomthegeek-maven-password')
+  }
+
   stages {
     stage('Notify-Build-Start') {
       steps {
-        discordSend(title: "${WEBHOOK_TITLE} Started", successful: true, result: 'ABORTED', thumbnail: JENKINS_HEAD, webhookURL: WEBHOOK_URL)
+        discordSend(
+          title: "${WEBHOOK_TITLE} Started",
+          successful: true,
+          result: 'ABORTED',
+          thumbnail: JENKINS_HEAD,
+          webhookURL: WEBHOOK_URL
+        )
       }
     }
 
@@ -20,21 +36,23 @@ pipeline {
       }
     }
 
-    stage('Documentation') {
-      steps {
-        sh './gradlew --stacktrace docs'
-        javadoc(keepAll: true, javadocDir: 'build/docs/')
-      }
-    }
+	stage('Documentation') {
+	  steps {
+	  	sh './gradlew --stacktrace docs'
+	  	publishHTML(
+	  	  reportName: "Docs",
+	  	  reportDir: "build/docs",
+	  	  reportFiles: "index.html",
+	  	  keepAll: true,
+	  	  alwaysLinkToLastBuild: false,
+	  	  allowMissing: false,
+	  	  escapeUnderscores: false,
+	  	  reportTitles: "Thread Docs"
+	  	)
+	  }
+	}
+  }
 
-  }
-  environment {
-    WEBHOOK_URL = credentials('discord-webhook')
-    WEBHOOK_TITLE = "Thread #${BUILD_NUMBER}"
-    JENKINS_HEAD = 'https://wiki.jenkins-ci.org/download/attachments/2916393/headshot.png'
-    MAVEN_USER = 'buildslave'
-    MAVEN_PASS = credentials('tomthegeek-maven-password')
-  }
   post {
     always {
       script {
@@ -51,8 +69,6 @@ pipeline {
           )
         }
       }
-
     }
-
   }
 }
