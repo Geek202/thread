@@ -39,16 +39,7 @@ pipeline {
 	stage('Documentation') {
 	  steps {
 	  	sh './gradlew --stacktrace docs'
-	  	publishHTML(
-	  	  reportName: "Docs",
-	  	  reportDir: "build/docs",
-	  	  reportFiles: "index.html",
-	  	  keepAll: true,
-	  	  alwaysLinkToLastBuild: false,
-	  	  allowMissing: false,
-	  	  escapeUnderscores: false,
-	  	  reportTitles: "Thread Docs"
-	  	)
+	  	javadoc(keepAll: true, javadocDir: 'build/docs/')
 	  }
 	}
   }
