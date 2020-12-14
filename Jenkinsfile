@@ -4,7 +4,7 @@ pipeline {
   agent any
   environment {
     WEBHOOK_URL = credentials('discord-webhook')
-    WEBHOOK_TITLE = "ThreadAPI #${BUILD_NUMBER}"
+    WEBHOOK_TITLE = "Thread #${BUILD_NUMBER}"
     JENKINS_HEAD = 'https://wiki.jenkins-ci.org/download/attachments/2916393/headshot.png'
     MAVEN_USER = 'buildslave'
     MAVEN_PASS = credentials('tomthegeek-maven-password')
@@ -26,16 +26,31 @@ pipeline {
     stage('Build') {
       steps {
         sh 'chmod +x gradlew'
-        sh './gradlew clean build'
+        sh './gradlew --stacktrace clean build'
       }
     }
 
     stage('Publish') {
       steps {
-        sh './gradlew publish'
+        sh './gradlew --stacktrace publish'
       }
     }
 
+	stage('Documentation') {
+	  steps {
+	  	sh './gradlew --stacktrace dokkaHtml'
+	  	publishHTML(
+	  	  reportName: "Docs",
+	  	  reportDir: "build/docs",
+	  	  reportFiles: "index.html",
+	  	  keepAll: true,
+	  	  alwaysLinkToLastBuild: false,
+	  	  allowMissing: false,
+	  	  escapeUnderscores: false,
+	  	  reportTitles: "Thread Docs"
+	  	)
+	  }
+	}
   }
 
   post {

@@ -1,6 +1,7 @@
 plugins {
     java
     kotlin("jvm") version "1.4.10" apply false
+    id("org.jetbrains.dokka") version "1.4.20"
 }
 
 val ENV: Map<String, String> = System.getenv()
@@ -10,6 +11,19 @@ if (ENV["BUILD_NUMBER"] != null) {
 }
 
 val baseVersion = "1.0"
+
+tasks.dokkaHtmlMultiModule.configure {
+    outputDirectory.set(buildDir.resolve("docs"))
+}
+
+tasks.register<Copy>("copyDocumentationIndex") {
+    tasks.dokkaHtmlMultiModule.get().finalizedBy(this)
+    from(project.file("doc_index.html"))
+    rename {
+        "index.html"
+    }
+    into(buildDir.resolve("docs"))
+}
 
 allprojects {
     apply(plugin = "maven-publish")
@@ -23,6 +37,7 @@ allprojects {
             url = uri("https://maven.tomthegeek.ml/")
         }
         mavenCentral()
+        jcenter()
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>() {
@@ -37,6 +52,7 @@ subprojects {
         }
 
         apply(plugin = "maven-publish")
+        apply(plugin = "org.jetbrains.dokka")
 
         val ENV = System.getenv()
 
@@ -65,6 +81,10 @@ subprojects {
                         }
                     }
                 }
+            }
+
+            tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
+                outputDirectory.set(buildDir.resolve("dokka"))
             }
         }
     }

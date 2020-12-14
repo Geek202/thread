@@ -1,5 +1,12 @@
 rootProject.name = "thread"
 
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        jcenter()
+    }
+}
+
 // Subprojects
 include("NetLib")
 include("thread-api")
