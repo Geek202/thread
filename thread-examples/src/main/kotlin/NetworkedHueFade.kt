@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
     val thread = NetworkedThread(host, port)
 
     // Wait for the NetworkedThread to be ready.
-    while (!thread.ready) {
+    while (!thread.isReady()) {
         Thread.sleep(5L)
     }
 

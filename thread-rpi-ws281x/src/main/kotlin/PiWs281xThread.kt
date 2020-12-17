@@ -39,6 +39,10 @@ class PiWs281xThread(
     override suspend fun release() {
 
     }
+
+    override fun isReady(): Boolean {
+        return true
+    }
 }
 
 /**

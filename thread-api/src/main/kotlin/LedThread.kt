@@ -55,6 +55,12 @@ interface LedThread : AutoCloseable {
      */
     suspend fun release()
 
+    /**
+     * Return true if the thread is still usable,
+     * false if it is not safe to call any of the other methods on this [LedThread]
+     */
+    fun isReady(): Boolean
+
     override fun close() {
         GlobalScope.launch {
             release()

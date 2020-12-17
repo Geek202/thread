@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 /**
  * An [LedThread] implementation that connects over the network using the [ThreadLedProtocol]
  *
- * [setPixel] and [render] are not safe unless [ready] is true.
+ * [setPixel] and [render] are not safe unless [isReady] is true.
  */
 class NetworkedThread(
     private val host: String,
@@ -24,8 +24,7 @@ class NetworkedThread(
 ) : LedThread, ClientEventListener {
 
     private val client: Client = Client(this.host, this.port, ThreadLedProtocol(::NoopListener) { this })
-    var ready: Boolean = false
-        private set
+    private var ready: Boolean = false
 
     private var length: Int = -1
 
@@ -51,6 +50,10 @@ class NetworkedThread(
     override suspend fun release() {
         if (!ready) throw IllegalStateException("Strip is not connected!")
         this.client.disconnect()
+    }
+
+    override fun isReady(): Boolean {
+        return this.ready
     }
 
     override fun onPacketReceived(client: Client, ctx: ChannelHandlerContext, packet: Packet) {

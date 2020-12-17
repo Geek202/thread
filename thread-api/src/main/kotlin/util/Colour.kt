@@ -1,5 +1,7 @@
 package me.geek.tom.thread.api.util
 
+import kotlin.math.roundToInt
+
 /**
  * And object that contains red, green and blue fields to represent a colour.
  */
@@ -22,6 +24,10 @@ data class Colour(
      */
     fun toInt(): Int {
         return ((red and 0xFF) shl 16) or ((green and 0xFF) shl 8) or (blue and 0xFF)
+    }
+
+    operator fun times(i: Double): Colour {
+        return Colour((this.red * i).roundToInt(), (this.green * i).roundToInt(), (this.blue * i).roundToInt())
     }
 
     companion object {
