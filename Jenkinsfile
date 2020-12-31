@@ -6,12 +6,15 @@ pipeline {
     WEBHOOK_URL = credentials('discord-webhook')
     WEBHOOK_TITLE = "Thread #${BUILD_NUMBER}"
     JENKINS_HEAD = 'https://wiki.jenkins-ci.org/download/attachments/2916393/headshot.png'
-    MAVEN_USER = 'buildslave'
-    MAVEN_PASS = credentials('tomthegeek-maven-password')
   }
 
   stages {
     stage('Notify-Build-Start') {
+      when {
+        not {
+          changeRequest()
+        }
+      }
       steps {
         discordSend(
           title: "${WEBHOOK_TITLE} Started",
@@ -31,17 +34,32 @@ pipeline {
     }
 
     stage('Publish') {
+      when {
+        not {
+          changeRequest()
+        }
+      }
+      environment {
+        MAVEN_USER = 'buildslave'
+        MAVEN_PASS = credentials('tomthegeek-maven-password')
+      }
+
       steps {
         sh './gradlew --stacktrace publish'
       }
     }
 
-	stage('Documentation') {
-	  steps {
-	  	sh './gradlew --stacktrace docs'
-	  	javadoc(keepAll: true, javadocDir: 'build/docs/')
-	  }
-	}
+    stage('Documentation') {
+      when {
+        not {
+          changeRequest()
+        }
+      }
+      steps {
+     	sh './gradlew --stacktrace docs'
+        javadoc(keepAll: true, javadocDir: 'build/docs/')
+      }
+    }
   }
 
   post {
